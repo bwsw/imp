@@ -75,4 +75,4 @@ libraryDependencies ++= Seq("org.json4s" %% "json4s-jackson" % "3.5.2",
   "org.scalamock" %% "scalamock-scalatest-support" % "3.5.0" % "test",
   "org.apache.curator" % "curator-recipes" % "4.0.0",
   "org.apache.curator" % "curator-test" % "4.0.0",
-  "org.telegram" % "telegrambots" % "3.2")
+  "org.apache.kafka" % "kafka_2.12" % "0.11.0.0")
