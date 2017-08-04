@@ -1,6 +1,21 @@
 package com.bwsw.imp.message
 
+import scala.collection.mutable
+
 /**
-  * Created by ivan on 03.08.17.
+  * Created by Ivan Kudryavtsev on 03.08.17.
   */
-abstract class Message extends Serializable
+abstract class Message extends Serializable {
+  val propertyMap = mutable.Map[String, String]()
+
+  def getProperty(key: String): Option[String] = {
+    if (propertyMap.contains(key))
+      Some(propertyMap(key))
+    else
+      None
+  }
+
+  def setProperty(key: String, value: String) = {
+    propertyMap(key) = value
+  }
+}

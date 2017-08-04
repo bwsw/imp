@@ -9,9 +9,10 @@ import scala.math.BigInt
   * Created by ivan on 03.08.17.
   */
 class OffsetKeeper(topic: String)(implicit curatorFramework: CuratorFramework) {
-  def createContainers = curatorFramework.createContainers(s"/offsets/$topic")
+  private def createContainers = curatorFramework.createContainers(s"/offsets/$topic")
+  private def path(partition: Int) = s"/offsets/$topic/$partition"
+  private def allocateBuffer() = ByteBuffer.allocate(java.lang.Long.SIZE / java.lang.Byte.SIZE)
 
-  def path(partition: Int) = s"/offsets/$topic/$partition"
 
   def store(offsets: Map[Int, Long]): Unit = {
     createContainers
@@ -19,7 +20,7 @@ class OffsetKeeper(topic: String)(implicit curatorFramework: CuratorFramework) {
       case (partition, offset) => curatorFramework
         .create()
         .orSetData()
-        .forPath(path(partition), ByteBuffer.allocate(java.lang.Long.SIZE / java.lang.Byte.SIZE).putLong(offset).array())
+        .forPath(path(partition), allocateBuffer().putLong(offset).array())
     }
   }
 
@@ -27,9 +28,11 @@ class OffsetKeeper(topic: String)(implicit curatorFramework: CuratorFramework) {
     createContainers
     partitions.map {
       partition => Option(curatorFramework.checkExists().forPath(path(partition)))
-        .fold (-1 -> 0L) {
+        .fold (partition -> 0L) {
           _ => partition -> {
-            val buffer = ByteBuffer.allocate(java.lang.Long.SIZE / java.lang.Byte.SIZE).put(curatorFramework.getData.forPath(path(partition)))
+            val buffer = allocateBuffer()
+            buffer.put(curatorFramework.getData.forPath(path(partition)))
+            buffer.rewind()
             buffer.getLong()
           }
         }
