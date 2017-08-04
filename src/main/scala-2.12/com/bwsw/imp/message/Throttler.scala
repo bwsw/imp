@@ -1,9 +1,9 @@
 package com.bwsw.imp.message
 
 /**
-  * Created by ivan on 03.08.17.
+  * Created by Ivan Kudryavtsev on 03.08.17.
   */
 trait Throttler {
-  def incoming(message: Message): Boolean
-  def outgoing(message: Message): Boolean
+  def passIngress(message: Message): Boolean
+  def passEgress(message: Message): Boolean
 }

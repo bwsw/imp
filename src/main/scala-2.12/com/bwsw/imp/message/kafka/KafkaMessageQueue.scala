@@ -78,7 +78,6 @@ class KafkaMessageQueue(topic: String,
     val m = new ProducerRecord[Long, KafkaMessage](topic, delay, message.asInstanceOf[KafkaMessage])
     producer.sendMessage(m)
   }
-
 }
 
 
