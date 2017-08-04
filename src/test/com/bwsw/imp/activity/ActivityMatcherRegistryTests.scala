@@ -2,7 +2,7 @@ package com.bwsw.cloudstack.imp.activity
 
 import com.bwsw.imp.activity.{Activity, ActivityMatcherRegistry}
 import com.bwsw.imp.event.Event
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Matchers}
 
 /**
   * Created by Ivan Kudryavtsev on 01.08.17.

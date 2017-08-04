@@ -3,7 +3,6 @@ package com.bwsw.imp.message.kafka
 import java.nio.ByteBuffer
 
 import org.apache.curator.framework.CuratorFramework
-import scala.math.BigInt
 
 /**
   * Created by ivan on 03.08.17.

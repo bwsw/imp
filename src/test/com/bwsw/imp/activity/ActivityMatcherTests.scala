@@ -3,7 +3,7 @@ package com.bwsw.cloudstack.imp.activity
 import com.bwsw.imp.activity.{Activity, ActivityMatcher}
 import com.bwsw.imp.event.Event
 import com.bwsw.imp.message.{Message, MessageQueue}
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Matchers}
 
 /**
   * Created by Ivan Kudryavtsev on 01.08.17.
@@ -14,7 +14,7 @@ object ActivityMatcherGenerator {
     (event: Event) => {
       List(new Activity(new MessageQueue {
         override def get: Option[Message] = ???
-        override def put(message: Message): Unit = ???
+        override def put(message: Message, delay: Long): Unit = ???
       }) {
         override def run(): Unit = {}
       })

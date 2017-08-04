@@ -1,11 +1,12 @@
 package com.bwsw.imp.message.kafka
 
+import com.bwsw.imp.kafka.AbstractKafkaProducerProxy
 import com.bwsw.imp.message.{Message, MessageQueue}
 import org.apache.curator.framework.CuratorFramework
-import org.apache.kafka.clients.consumer.{KafkaConsumer}
-import org.apache.kafka.clients.producer.{ProducerRecord, KafkaProducer}
-import scala.collection.JavaConverters._
+import org.apache.kafka.clients.consumer.{Consumer, ConsumerRecord}
+import org.apache.kafka.clients.producer.ProducerRecord
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 
@@ -14,35 +15,73 @@ import scala.collection.mutable
   */
 
 object KafkaMessageQueue {
-  private val POLLING_INTERVAL = 1000
+  private[imp] val POLLING_INTERVAL = 100000
+  private[imp] val CPU_PROTECTION_DELAY_INCREMENT = 50
+  private[imp] val CPU_PROTECTION_DELAY_MAX = 1000
 }
 
 class KafkaMessageQueue(topic: String,
-                        consumer: KafkaConsumer[Int, KafkaMessage],
-                        producer: KafkaProducer[Int, KafkaMessage])(implicit curatorClient: CuratorFramework) extends MessageQueue {
+                        consumer: Consumer[Long, KafkaMessage],
+                        producer: AbstractKafkaProducerProxy)(implicit curatorClient: CuratorFramework) extends MessageQueue {
 
   private val messages = mutable.Queue[KafkaMessage]()
-  private var offsets = Map[Int, Long]().empty
+  protected var offsets = Map[Int, Long]().empty
+  private[imp] var cpuProtectionDelay = 0
+
+  protected def getReadyTime = System.currentTimeMillis()
+  protected def saveOffsets = new OffsetKeeper(topic)(curatorClient).store(offsets)
+
 
   override def get: Option[KafkaMessage] = {
     if(messages.isEmpty) {
-      new OffsetKeeper(topic)(curatorClient).store(offsets)
-      val messageRecords = consumer.poll(KafkaMessageQueue.POLLING_INTERVAL)
-      val records = messageRecords.records(topic).asScala
-      offsets = records.map(r => {
-        messages.enqueue(r.value())
-        r.partition() -> r.offset()
-      }).toMap
-    }
+      saveOffsets
 
+      if(cpuProtectionDelay > 0) Thread.sleep(cpuProtectionDelay)
+
+      val records = consumer
+        .poll(KafkaMessageQueue.POLLING_INTERVAL)
+        .records(topic).asScala
+      filterReadyMessages(records)
+
+      setCpuProtectionDelay(records.isEmpty, messages.isEmpty)
+
+    }
     if(messages.isEmpty)
       None
     else
       Some(messages.dequeue())
   }
 
-  override def put(message: Message): Unit = {
-    producer.send(new ProducerRecord[Int, KafkaMessage](topic, 0, message.asInstanceOf[KafkaMessage])).get()
+  private def filterReadyMessages(records: Iterable[ConsumerRecord[Long, KafkaMessage]]) = {
+    offsets = records.map(r => {
+      if(r.key <= getReadyTime) {
+        messages.enqueue(r.value())
+      }
+      else {
+        put(r.value(), r.key())
+      }
+      r.partition() -> r.offset()
+    }).toMap
+  }
+
+  private def setCpuProtectionDelay(receivedMessagesIsEmpty: Boolean, filteredMessagesIsEmpty: Boolean) = {
+    if(!receivedMessagesIsEmpty && filteredMessagesIsEmpty) {
+      if(cpuProtectionDelay < KafkaMessageQueue.CPU_PROTECTION_DELAY_MAX) {
+        cpuProtectionDelay += KafkaMessageQueue.CPU_PROTECTION_DELAY_INCREMENT
+      }
+    } else {
+      cpuProtectionDelay = 0
+    }
+  }
+
+  override def put(message: Message, delay: Long): Unit = {
+    val m = new ProducerRecord[Long, KafkaMessage](topic, delay, message.asInstanceOf[KafkaMessage])
+    producer.sendMessage(m)
   }
 
 }
+
+
+
+
+
