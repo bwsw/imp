@@ -2,7 +2,7 @@ package com.bwsw.cloudstack.imp.activity
 
 import com.bwsw.imp.activity.{Activity, ActivityMatcher}
 import com.bwsw.imp.event.Event
-import com.bwsw.imp.message.{Message, MessageQueue}
+import com.bwsw.imp.message.{DelayedMessage, Message, MessageQueue}
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -15,6 +15,7 @@ object ActivityMatcherGenerator {
       List(new Activity(new MessageQueue {
         override def get: Option[Message] = ???
         override def put(message: Message, delay: Long): Unit = ???
+        override def put(message: DelayedMessage): Unit = ???
       }) {
         override def run(): Unit = {}
       })

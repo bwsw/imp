@@ -1,10 +1,8 @@
-package com.bwsw.imp
+package com.bwsw.imp.message.kafka
 
 import com.bwsw.cloudstack.common.curator.CuratorTests
 import com.bwsw.imp.kafka.MockProducerProxy
-import com.bwsw.imp.message.kafka.{OffsetKeeper, KafkaMessage, KafkaMessageQueue}
 import org.apache.kafka.clients.consumer.{ConsumerRecord, MockConsumer, OffsetResetStrategy}
-import org.apache.kafka.clients.producer.MockProducer
 import org.apache.kafka.common.TopicPartition
 
 import scala.collection.JavaConverters._
@@ -114,5 +112,16 @@ class KafkaMessageQueueTests extends CuratorTests {
     mq.get shouldBe Some(message)
     mq.cpuProtectionDelay shouldBe 0
 
+  }
+
+  it should "allow put DelayedMessage properly" in {
+    val consumer = new MockConsumer[Long, KafkaMessage](OffsetResetStrategy.EARLIEST)
+    val producer = new MockProducerProxy()
+    val message = new KafkaDelayedMessage {
+      override def delay: Long = 1000
+    }
+
+    val mq = new KafkaMessageQueue(TOPIC, consumer, producer)
+    mq.put(message)
   }
 }

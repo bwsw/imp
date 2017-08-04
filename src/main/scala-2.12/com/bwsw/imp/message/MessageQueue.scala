@@ -6,4 +6,5 @@ package com.bwsw.imp.message
 trait MessageQueue {
   def get: Option[Message]
   def put(message: Message, delay: Long): Unit
+  def put(message: DelayedMessage)
 }

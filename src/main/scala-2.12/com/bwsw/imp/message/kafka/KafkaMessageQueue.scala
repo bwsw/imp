@@ -1,7 +1,7 @@
 package com.bwsw.imp.message.kafka
 
 import com.bwsw.imp.kafka.AbstractKafkaProducerProxy
-import com.bwsw.imp.message.{Message, MessageQueue}
+import com.bwsw.imp.message.{DelayedMessage, Message, MessageQueue}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.kafka.clients.consumer.{Consumer, ConsumerRecord}
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -78,6 +78,9 @@ class KafkaMessageQueue(topic: String,
     val m = new ProducerRecord[Long, KafkaMessage](topic, delay, message.asInstanceOf[KafkaMessage])
     producer.sendMessage(m)
   }
+
+  override def put(message: DelayedMessage): Unit = put(message.asInstanceOf[KafkaMessage], message.delay)
+
 }
 
 
