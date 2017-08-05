@@ -1,6 +1,5 @@
-package com.bwsw.cloudstack.imp.activity
+package com.bwsw.imp.activity
 
-import com.bwsw.imp.activity.{Activity, ActivityMatcherRegistry}
 import com.bwsw.imp.event.Event
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -9,8 +8,8 @@ import org.scalatest.{FlatSpec, Matchers}
   */
 class ActivityMatcherRegistryTests extends FlatSpec with Matchers {
   it should "gather events from different factories" in {
-    val f1 = ActivityMatcherGenerator.getTrivialActionMatcher()
-    val f2 = ActivityMatcherGenerator.getTrivialActionMatcher()
+    val f1 = ActivityMatcherGenerator.getTrivialActionMatcher
+    val f2 = ActivityMatcherGenerator.getTrivialActionMatcher
 
     val registry = new ActivityMatcherRegistry
     registry

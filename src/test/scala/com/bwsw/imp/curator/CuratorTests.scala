@@ -1,4 +1,4 @@
-package com.bwsw.cloudstack.common.curator
+package com.bwsw.imp.curator
 
 import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
 import org.apache.curator.retry.ExponentialBackoffRetry
@@ -8,10 +8,11 @@ import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 /**
   * Created by Ivan Kudryavtsev on 31.07.17.
   */
+
 class CuratorTests extends FlatSpec with Matchers with BeforeAndAfterAll {
   val ZOOKEEPER_PORT = 21810
   var testingServer = new TestingServer(ZOOKEEPER_PORT)
-  implicit var curator: CuratorFramework = null
+  implicit var curator: CuratorFramework = _
 
   override def beforeAll() = {
     testingServer.start()
@@ -21,6 +22,8 @@ class CuratorTests extends FlatSpec with Matchers with BeforeAndAfterAll {
       .connectString(s"127.0.0.1:$ZOOKEEPER_PORT").build()
     curator.start()
   }
+
+  it must "do nothing" in {}
 
   override def afterAll() = {
     curator.close()

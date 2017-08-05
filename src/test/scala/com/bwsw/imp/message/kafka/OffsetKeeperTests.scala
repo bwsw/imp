@@ -1,6 +1,6 @@
 package com.bwsw.imp.message.kafka
 
-import com.bwsw.cloudstack.common.curator.CuratorTests
+import com.bwsw.imp.curator.CuratorTests
 
 /**
   * Created by Ivan Kudryavtsev on 04.08.17.
