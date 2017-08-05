@@ -7,6 +7,7 @@ import scala.util.{Failure, Success}
   * Created by ivan on 04.08.17.
   */
 
+//
 // based on
 // https://stackoverflow.com/questions/29344430/scala-waiting-for-sequence-of-futures
 //
