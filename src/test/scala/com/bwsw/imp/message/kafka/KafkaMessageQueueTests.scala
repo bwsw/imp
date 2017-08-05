@@ -33,20 +33,18 @@ class KafkaMessageQueueTests extends CuratorTests {
     consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET, 0, message))
 
     checkOffsetsAreSaved = false
-    mq.get shouldBe Some(message)
+    mq.get shouldBe Seq(message)
 
     checkOffsetsAreSaved = true
-    mq.get shouldBe None
+    mq.get shouldBe Nil
 
     checkOffsetsAreSaved = false
-    mq.get shouldBe None
+    mq.get shouldBe Nil
 
     checkOffsetsAreSaved = false
     consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET+1, 0, message))
     consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET+2, 0, message))
-    mq.get shouldBe Some(message)
-    mq.get shouldBe Some(message)
-
+    mq.get shouldBe Seq(message, message)
   }
 
   it should "forward future messages to producer" in {
@@ -64,18 +62,19 @@ class KafkaMessageQueueTests extends CuratorTests {
     consumer.assign(Set(new TopicPartition(TOPIC, 0)).asJavaCollection)
     consumer.seek(new TopicPartition(TOPIC, 0), 0)
     consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET, nowTime + 1, message))
-    mq.get shouldBe None
+    mq.get shouldBe Nil
     val record = producer.msgQueue.dequeue()
     record.key() shouldBe nowTime + 1
     record.value() shouldBe message
 
     consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET + 1, nowTime + 1, message))
     nowTime += 1
-    mq.get shouldBe Some(message)
+    mq.get shouldBe Seq(message)
     producer.msgQueue.isEmpty shouldBe true
-    mq.get shouldBe None
+    mq.get shouldBe Nil
     producer.msgQueue.isEmpty shouldBe true
 
+    mq.saveOffsets
     val offsetKeeper = new OffsetKeeper(TOPIC)
     offsetKeeper.load(Set(PARTITION)) shouldBe Map (PARTITION -> (OFFSET + 1))
   }
@@ -95,21 +94,19 @@ class KafkaMessageQueueTests extends CuratorTests {
     consumer.assign(Set(new TopicPartition(TOPIC, 0)).asJavaCollection)
     consumer.seek(new TopicPartition(TOPIC, 0), 0)
     consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET, nowTime + 1, message))
-    mq.get shouldBe None
+    mq.get shouldBe Nil
 
     mq.cpuProtectionDelay shouldBe KafkaMessageQueue.CPU_PROTECTION_DELAY_INCREMENT
 
     consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET + 1, nowTime + 1, message))
-    mq.get shouldBe None
+    mq.get shouldBe Nil
     mq.cpuProtectionDelay shouldBe KafkaMessageQueue.CPU_PROTECTION_DELAY_INCREMENT * 2
 
     consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET + 2, nowTime + 1, message))
     consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET + 3, nowTime + 1, message))
 
     nowTime += 1
-    mq.get shouldBe Some(message)
-    mq.cpuProtectionDelay shouldBe 0
-    mq.get shouldBe Some(message)
+    mq.get shouldBe Seq(message, message)
     mq.cpuProtectionDelay shouldBe 0
 
   }

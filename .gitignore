@@ -2,3 +2,7 @@
 *.log
 .idea/*
 
+Будет удалено .idea/
+Будет удалено project/project/
+Будет удалено project/target/
+Будет удалено target/

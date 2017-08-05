@@ -2,7 +2,7 @@ package com.bwsw.imp.message.kafka
 
 import com.bwsw.imp.curator.CuratorTests
 import com.bwsw.imp.kafka.MockProducerProxy
-import com.bwsw.imp.message.{Message, Throttler}
+import com.bwsw.imp.message.{Message, MessageFilter}
 import org.apache.kafka.clients.consumer.{ConsumerRecord, MockConsumer, OffsetResetStrategy}
 import org.apache.kafka.common.TopicPartition
 
@@ -17,66 +17,66 @@ class ThrottledKafkaMessageQueueTests extends CuratorTests {
   val PARTITION = 0
   val OFFSET = 1000L
 
-  class TestThrottler extends Throttler {
+  class TestMessageFilter extends MessageFilter {
     var ingressThrottledCount = 0
-    var ingressReturn = true
+    var ingressFilterResult = true
     var egressThrottledCount = 0
-    var egressReturn = true
+    var egressFilterResult = true
 
-    override def passIngress(message: Message): Boolean = {
+    override def filterGet(message: Message): Boolean = {
       ingressThrottledCount += 1
-      ingressReturn
+      ingressFilterResult
     }
 
-    override def passEgress(message: Message): Boolean = {
+    override def filterPut(message: Message): Boolean = {
       egressThrottledCount += 1
-      egressReturn
+      egressFilterResult
     }
   }
 
   it should "throttle ingress and egress messages" in {
 
-    val throttler = new TestThrottler
+    val throttler = new TestMessageFilter
 
     val consumer = new MockConsumer[Long, KafkaMessage](OffsetResetStrategy.EARLIEST)
     val producer = new MockProducerProxy()
     val message = new KafkaMessage {}
 
-    val mq = new ThrottledKafkaMessageQueue(TOPIC, consumer, producer, throttler)
+    val mq = new FilteredKafkaMessageQueue(TOPIC, consumer, producer, throttler)
 
     consumer.assign(Set(new TopicPartition(TOPIC, 0)).asJavaCollection)
     consumer.seek(new TopicPartition(TOPIC, 0), 0)
 
-    throttler.egressReturn = true
+    throttler.egressFilterResult = true
     consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET, 0, message))
-    mq.get shouldBe Some(message)
+    mq.get shouldBe Seq(message)
     throttler.egressThrottledCount shouldBe 1
 
-    throttler.egressReturn = false
+    throttler.egressFilterResult = false
     consumer.seek(new TopicPartition(TOPIC, 0), 0)
     consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET, 0, message))
-    mq.get shouldBe None
+    mq.get shouldBe Nil
     throttler.egressThrottledCount shouldBe 2
 
-    throttler.egressReturn = true
+    throttler.egressFilterResult = true
     consumer.seek(new TopicPartition(TOPIC, 0), 0)
     consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET, 0, message))
-    mq.get shouldBe Some(message)
+    mq.get shouldBe Seq(message)
     throttler.egressThrottledCount shouldBe 3
 
-    throttler.ingressReturn = true
+    throttler.ingressFilterResult = true
     mq.put(message)
     producer.msgQueue.dequeue()
     throttler.ingressThrottledCount shouldBe 1
 
-    throttler.ingressReturn = false
+    throttler.ingressFilterResult = false
     mq.put(message)
     intercept [NoSuchElementException] {
       producer.msgQueue.dequeue()
     }
     throttler.ingressThrottledCount shouldBe 2
 
-    throttler.ingressReturn = false
+    throttler.ingressFilterResult = false
     mq.put(new KafkaDelayedMessage {
       override def delay: Long = 100
     })

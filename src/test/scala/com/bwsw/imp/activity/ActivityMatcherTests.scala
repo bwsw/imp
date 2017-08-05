@@ -12,8 +12,8 @@ object ActivityMatcherGenerator {
   def getTrivialActionMatcher: ActivityMatcher = {
     (event: Event) => {
       List(new Activity(new MessageQueue {
-        override def get: Option[Message] = ???
-        override def put(message: Message, delay: Long): Unit = ???
+        override def get: Seq[Message] = ???
+        override def put(message: Message): Unit = ???
         override def put(message: DelayedMessage): Unit = ???
       }) {
         override def run(): Unit = {}
