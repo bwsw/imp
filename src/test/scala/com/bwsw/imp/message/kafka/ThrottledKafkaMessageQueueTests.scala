@@ -1,7 +1,7 @@
 package com.bwsw.imp.message.kafka
 
+import com.bwsw.imp.common.kafka.MockProducerProxy
 import com.bwsw.imp.curator.CuratorTests
-import com.bwsw.imp.kafka.MockProducerProxy
 import com.bwsw.imp.message.{Message, MessageFilter}
 import org.apache.kafka.clients.consumer.{ConsumerRecord, MockConsumer, OffsetResetStrategy}
 import org.apache.kafka.common.TopicPartition

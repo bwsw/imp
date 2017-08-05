@@ -1,4 +1,4 @@
-package com.bwsw.imp.kafka
+package com.bwsw.imp.common.kafka
 
 import com.bwsw.imp.message.kafka.KafkaMessage
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}

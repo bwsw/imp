@@ -11,12 +11,12 @@ class ActivityMatcherRegistryTests extends FlatSpec with Matchers {
     val f1 = ActivityMatcherGenerator.getTrivialActionMatcher
     val f2 = ActivityMatcherGenerator.getTrivialActionMatcher
 
-    val registry = new ActivityMatcherRegistry
+    val registry = new ActivityMatcherRegistry(new Environment)
     registry
       .register(f1)
       .register(f2)
 
-    val actionList = registry.generate(new Event)
+    val actionList = registry.spawn(new Event)
 
     actionList.isInstanceOf[List[Activity]] shouldBe true
     actionList.size shouldBe 2

@@ -1,7 +1,6 @@
 package com.bwsw.imp.activity
 
 import com.bwsw.imp.event.Event
-import com.bwsw.imp.message.{DelayedMessage, Message, MessageQueue}
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -10,13 +9,9 @@ import org.scalatest.{FlatSpec, Matchers}
 
 object ActivityMatcherGenerator {
   def getTrivialActionMatcher: ActivityMatcher = {
-    (event: Event) => {
-      List(new Activity(new MessageQueue {
-        override def get: Seq[Message] = ???
-        override def put(message: Message): Unit = ???
-        override def put(message: DelayedMessage): Unit = ???
-      }) {
-        override def run(): Unit = {}
+    (e: Environment, event: Event) => {
+      List(new Activity {
+        override def run(): Unit = ???
       })
     }
   }
@@ -26,7 +21,7 @@ class ActivityMatcherTests extends FlatSpec with Matchers {
   it should "generate events properly" in {
     val f = ActivityMatcherGenerator.getTrivialActionMatcher
 
-    val actionList = f.generate(new Event)
+    val actionList = f.spawn(new Environment, new Event)
     actionList.isInstanceOf[List[Activity]] shouldBe true
     actionList.isEmpty shouldBe false
   }

@@ -1,6 +1,6 @@
 package com.bwsw.imp.message.kafka
 
-import com.bwsw.imp.kafka.AbstractKafkaProducerProxy
+import com.bwsw.imp.common.kafka.AbstractKafkaProducerProxy
 import com.bwsw.imp.message.{DelayedMessage, Message, MessageFilter}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.kafka.clients.consumer.Consumer

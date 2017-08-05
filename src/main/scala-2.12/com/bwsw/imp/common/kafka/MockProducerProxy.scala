@@ -1,7 +1,7 @@
-package com.bwsw.imp.kafka
+package com.bwsw.imp.common.kafka
 
 import com.bwsw.imp.message.kafka.KafkaMessage
-import org.apache.kafka.clients.producer.{MockProducer, ProducerRecord}
+import org.apache.kafka.clients.producer.ProducerRecord
 
 import scala.collection.mutable
 
