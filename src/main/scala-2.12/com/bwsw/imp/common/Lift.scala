@@ -11,6 +11,8 @@ import scala.util.{Failure, Success}
 // https://stackoverflow.com/questions/29344430/scala-waiting-for-sequence-of-futures
 //
 object Lift {
+  import ExecutionContext.Implicits.global
+
   private def lift[T](futures: Seq[Future[T]]) =
     futures.map(_.map { Success(_) }.recover { case t => Failure(t) })
 

@@ -18,8 +18,25 @@ class ActivityMatcherRegistryTests extends FlatSpec with Matchers {
 
     val actionList = registry.spawn(new Event)
 
-    actionList.isInstanceOf[List[Activity]] shouldBe true
+    actionList.isInstanceOf[Seq[Activity]] shouldBe true
     actionList.size shouldBe 2
+
+
+  }
+
+  it should "generate asynchronously" in {
+    val f1 = ActivityMatcherGenerator.getTrivialActionMatcher
+    val f2 = ActivityMatcherGenerator.getTrivialActionMatcher
+
+    val registry = new ActivityMatcherRegistry(new Environment)
+    registry
+      .register(f1)
+      .register(f2)
+
+    val asyncActionGeneratedList = registry.spawnEvents(Seq(new Event))
+
+    asyncActionGeneratedList.isInstanceOf[Seq[Activity]] shouldBe true
+    asyncActionGeneratedList.size shouldBe 2
 
   }
 }

@@ -19,9 +19,9 @@ class ActivityMatcherRegistry(environment: Environment) {
     this
   }
 
-  def spawn(event: Event): List[Activity] = spawnInt(registry.toList, event)
+  def spawn(event: Event): Seq[Activity] = spawnInt(registry.toList, event)
 
-  private def spawnInt(registry: Seq[ActivityMatcher], event: Event): List[Activity] = {
+  private def spawnInt(registry: Seq[ActivityMatcher], event: Event): Seq[Activity] = {
     registry.toSeq match {
       case Nil => Nil
       case h :: t => h.spawn(environment, event) ++ spawnInt(t, event)
