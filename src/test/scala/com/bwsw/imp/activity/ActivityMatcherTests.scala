@@ -11,7 +11,7 @@ object ActivityMatcherGenerator {
   def getTrivialActionMatcher: ActivityMatcher = {
     (e: Environment, event: Event) => {
       List(new Activity {
-        override def run(): Unit = ???
+        override def activate(e: Environment): Seq[Activity] = ???
       })
     }
   }

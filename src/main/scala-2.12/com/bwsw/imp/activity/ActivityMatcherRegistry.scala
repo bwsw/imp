@@ -2,6 +2,7 @@ package com.bwsw.imp.activity
 
 import com.bwsw.imp.common.Lift
 import com.bwsw.imp.event.Event
+import com.bwsw.imp.message.Message
 import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
@@ -23,22 +24,21 @@ class ActivityMatcherRegistry(environment: Environment) {
 
   private def spawnInt(registry: Seq[ActivityMatcher], event: Event): Seq[Activity] = {
     ActivityMatcherRegistry.logger.debug(s"Generate activities for $event.")
-    registry.toSeq match {
+    registry match {
       case Nil => Nil
       case h :: t => h.spawn(environment, event) ++ spawnInt(t, event)
     }
   }
 
-  def spawnEvents(events: Seq[Event]): Seq[Activity] = {
+  def spawnEvents(events: Seq[Message]): Seq[Activity] = {
     import ExecutionContext.Implicits.global
 
-    val r = Lift.waitAll(events.map(e => Future { spawn(e) })) map {
+    val r = Lift.waitAll(events.map(e => Future { spawn(e.asInstanceOf[Event]) })) map {
       res => res.flatMap(f => f match {
         case Success(list) => list
-        case Failure(ex) => {
+        case Failure(ex) =>
           ActivityMatcherRegistry.logger.error("An exception occurred during Action generation for event.", ex)
           Nil
-        }
       })
     }
     Await.result(r, Duration.Inf)

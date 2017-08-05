@@ -57,7 +57,7 @@ class KafkaMessageQueue(topic: String,
       r.partition() -> r.offset()
     }).toMap
 
-    messages.toSeq
+    messages
   }
 
   private def setCpuProtectionDelay(receivedMessagesIsEmpty: Boolean, filteredMessagesIsEmpty: Boolean) = {
@@ -79,7 +79,7 @@ class KafkaMessageQueue(topic: String,
     putInternal(message, 0)
   }
 
-  override def put(message: DelayedMessage): Unit = putInternal(message.asInstanceOf[KafkaMessage], message.delay)
+  override def putDelayed(message: DelayedMessage): Unit = putInternal(message.asInstanceOf[KafkaMessage], message.delay)
 
 }
 

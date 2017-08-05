@@ -25,8 +25,8 @@ class FilteredKafkaMessageQueue(topic: String,
       super.put(message)
   }
 
-  override def put(message: DelayedMessage): Unit = {
+  override def putDelayed(message: DelayedMessage): Unit = {
     if(throttler.filterGet(message))
-      super.put(message)
+      super.putDelayed(message)
   }
 }

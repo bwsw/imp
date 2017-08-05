@@ -119,6 +119,6 @@ class KafkaMessageQueueTests extends CuratorTests {
     }
 
     val mq = new KafkaMessageQueue(TOPIC, consumer, producer)
-    mq.put(message)
+    mq.putDelayed(message)
   }
 }

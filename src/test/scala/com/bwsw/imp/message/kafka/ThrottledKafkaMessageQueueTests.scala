@@ -77,7 +77,7 @@ class ThrottledKafkaMessageQueueTests extends CuratorTests {
     throttler.ingressThrottledCount shouldBe 2
 
     throttler.ingressFilterResult = false
-    mq.put(new KafkaDelayedMessage {
+    mq.putDelayed(new KafkaDelayedMessage {
       override def delay: Long = 100
     })
     intercept [NoSuchElementException] {
