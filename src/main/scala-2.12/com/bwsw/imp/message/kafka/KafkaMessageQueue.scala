@@ -27,9 +27,9 @@ class KafkaMessageQueue(topic: String,
   protected var offsets = Map[Int, Long]().empty
   private[imp] var cpuProtectionDelay = 0
 
-  protected def getReadyTime = System.currentTimeMillis()
-
   def saveOffsets = new OffsetKeeper(topic)(curatorClient).store(offsets)
+
+  override def loadOffsets: Unit = ???
 
   override def get: Seq[KafkaMessage] = {
     if(cpuProtectionDelay > 0) Thread.sleep(cpuProtectionDelay)
@@ -80,6 +80,7 @@ class KafkaMessageQueue(topic: String,
   }
 
   override def putDelayed(message: DelayedMessage): Unit = putInternal(message.asInstanceOf[KafkaMessage], message.delay)
+
 
 }
 
