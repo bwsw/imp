@@ -33,7 +33,7 @@ class ActivityMatcherRegistry(environment: Environment) {
   def spawnEvents(events: Seq[Message]): Seq[Activity] = {
     import ExecutionContext.Implicits.global
 
-    val r = Lift.waitAll(events.map(e => Future { spawn(e.asInstanceOf[Event]) })) map {
+    val activityFutures = Lift.waitAll(events.map(e => Future { spawn(e.asInstanceOf[Event]) })) map {
       res => res.flatMap(f => f match {
         case Success(list) => list
         case Failure(ex) =>
@@ -41,7 +41,7 @@ class ActivityMatcherRegistry(environment: Environment) {
           Nil
       })
     }
-    Await.result(r, Duration.Inf)
+    Await.result(activityFutures, Duration.Inf)
   }
 }
 
