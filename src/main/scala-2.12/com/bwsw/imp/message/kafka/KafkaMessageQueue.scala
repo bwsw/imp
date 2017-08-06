@@ -5,6 +5,7 @@ import com.bwsw.imp.message.{DelayedMessage, Message, MessageQueue}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.kafka.clients.consumer.{Consumer, ConsumerRecord}
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.common.TopicPartition
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -27,9 +28,16 @@ class KafkaMessageQueue(topic: String,
   protected var offsets = Map[Int, Long]().empty
   private[imp] var cpuProtectionDelay = 0
 
-  def saveOffsets = new OffsetKeeper(topic)(curatorClient).store(offsets)
+  def saveOffsets = new OffsetKeeper(topic).store(offsets)
 
-  override def loadOffsets: Unit = ???
+  override def loadOffsets: Unit = {  //todo: test it
+    val keeper = new OffsetKeeper(topic)
+    val partitions = consumer.partitionsFor(topic).iterator().asScala.map(_.partition()).toSet
+    val offsets = keeper.load(partitions)
+    offsets.foreach {
+      case (partition, offset) => consumer.seek(new TopicPartition(topic, partition), offset)
+    }
+  }
 
   override def get: Seq[KafkaMessage] = {
     if(cpuProtectionDelay > 0) Thread.sleep(cpuProtectionDelay)
