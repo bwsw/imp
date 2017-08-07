@@ -28,9 +28,9 @@ class KafkaMessageQueue(topic: String,
 
   private val pollingInterval = KafkaMessageQueue.POLLING_INTERVAL
 
-  def saveOffsets = new OffsetKeeper(topic).store(offsets)
+  def saveOffsets() = new OffsetKeeper(topic).store(offsets)
 
-  override def loadOffsets: Unit = {  //todo: test it
+  override def loadOffsets(): Unit = {  //todo: test it
     val keeper = new OffsetKeeper(topic)
     val partitions = consumer.partitionsFor(topic).iterator().asScala.map(_.partition()).toSet
     val offsets = keeper.load(partitions)

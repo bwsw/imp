@@ -3,14 +3,14 @@ package com.bwsw.imp.event
 import java.util.concurrent.atomic.AtomicBoolean
 
 import com.bwsw.imp.activity.{Activity, ActivityMatcherRegistry, DelayedActivity}
-import com.bwsw.imp.message.{MessageReader, MessageWritter}
+import com.bwsw.imp.message.{MessageReader, MessageWriter}
 import org.slf4j.LoggerFactory
 
 /**
   * Created by Ivan Kudryavtsev on 05.08.17.
   */
 class EventProcessor(eventQueue: MessageReader,
-                     activityQueue: MessageWritter,
+                     activityQueue: MessageWriter,
                      activityMatcherRegistry: ActivityMatcherRegistry,
                      estimator: Estimator) {
   private val exit = new AtomicBoolean(false)
@@ -35,7 +35,7 @@ class EventProcessor(eventQueue: MessageReader,
       if(EventProcessor.logger.isDebugEnabled)
         EventProcessor.logger.debug(s"Event processor is going to save offsets.")
 
-      eventQueue.saveOffsets
+      eventQueue.saveOffsets()
 
       if(EventProcessor.logger.isDebugEnabled)
         EventProcessor.logger.debug(s"Event processor have saved offsets.")

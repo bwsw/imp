@@ -15,7 +15,7 @@ class EventProcessorTests extends FlatSpec with Matchers {
     val eventQueue = new MemoryMessageQueue
     val activityQueue = new MemoryMessageQueue
     val eventProcessor = new EventProcessor(eventQueue = eventQueue, activityQueue = activityQueue,
-      activityMatcherRegistry = registry, estimator = new PassThroughtEstimator)
+      activityMatcherRegistry = registry, estimator = new PassThroughEstimator)
     eventProcessor.start()
     eventProcessor.stop()
   }
@@ -35,7 +35,7 @@ class EventProcessorTests extends FlatSpec with Matchers {
     eventQueue.put(new Event)
     val activityQueue = new MemoryMessageQueue
     val eventProcessor = new EventProcessor(eventQueue = eventQueue, activityQueue = activityQueue,
-      activityMatcherRegistry = registry, estimator = new PassThroughtEstimator)
+      activityMatcherRegistry = registry, estimator = new PassThroughEstimator)
     eventProcessor.start()
     latch.await(1, TimeUnit.SECONDS)
     eventProcessor.stop()

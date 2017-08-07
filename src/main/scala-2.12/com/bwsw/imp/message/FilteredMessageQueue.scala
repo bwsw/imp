@@ -21,7 +21,7 @@ class FilteredMessageQueue(backendQueue: MessageQueue, filter: MessageFilter) ex
       backendQueue.putDelayed(message)
   }
 
-  override def saveOffsets: Unit = backendQueue.saveOffsets
+  override def saveOffsets(): Unit = backendQueue.saveOffsets()
 
-  override def loadOffsets: Unit = backendQueue.loadOffsets
+  override def loadOffsets(): Unit = backendQueue.loadOffsets()
 }

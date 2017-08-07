@@ -8,13 +8,13 @@ import org.apache.curator.framework.CuratorFramework
   * Created by ivan on 03.08.17.
   */
 class OffsetKeeper(topic: String)(implicit curatorFramework: CuratorFramework) {
-  private def createContainers = curatorFramework.createContainers(s"/offsets/$topic")
+  private def createContainers() = curatorFramework.createContainers(s"/offsets/$topic")
   private def path(partition: Int) = s"/offsets/$topic/$partition"
   private def allocateBuffer() = ByteBuffer.allocate(java.lang.Long.SIZE / java.lang.Byte.SIZE)
 
 
   def store(offsets: Map[Int, Long]): Unit = {
-    createContainers
+    createContainers()
     offsets foreach {
       case (partition, offset) => curatorFramework
         .create()
@@ -24,7 +24,7 @@ class OffsetKeeper(topic: String)(implicit curatorFramework: CuratorFramework) {
   }
 
   def load(partitions: Set[Int]): Map[Int, Long] = {
-    createContainers
+    createContainers()
     partitions.map {
       partition => Option(curatorFramework.checkExists().forPath(path(partition)))
         .fold (partition -> 0L) {

@@ -6,6 +6,6 @@ package com.bwsw.imp.message
 trait MessageReader {
   protected def getReadyTime = System.currentTimeMillis()
   def get: Seq[Message]
-  def saveOffsets: Unit
-  def loadOffsets: Unit
+  def saveOffsets(): Unit
+  def loadOffsets(): Unit
 }

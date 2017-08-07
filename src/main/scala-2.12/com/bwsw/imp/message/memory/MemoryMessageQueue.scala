@@ -10,7 +10,7 @@ import scala.collection.mutable
 class MemoryMessageQueue extends MessageQueue with DelayedMessagesCpuProtection {
   val queue = mutable.Queue[(Long, Message)]()
 
-  override def saveOffsets: Unit = {}
+  override def saveOffsets(): Unit = {}
 
   override def get: Seq[Message] = {
     delay()
@@ -35,5 +35,5 @@ class MemoryMessageQueue extends MessageQueue with DelayedMessagesCpuProtection 
 
   override def putDelayed(message: DelayedMessage): Unit = queue.enqueue((message.delay, message))
 
-  override def loadOffsets: Unit = {}
+  override def loadOffsets(): Unit = {}
 }
