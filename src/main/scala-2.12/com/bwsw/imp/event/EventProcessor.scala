@@ -1,8 +1,7 @@
 package com.bwsw.imp.event
 
-import java.util.concurrent.atomic.AtomicBoolean
-
 import com.bwsw.imp.activity.{Activity, ActivityMatcherRegistry, DelayedActivity}
+import com.bwsw.imp.common.StartStopBehaviour
 import com.bwsw.imp.message.{MessageReader, MessageWriter}
 import org.slf4j.LoggerFactory
 
@@ -12,10 +11,9 @@ import org.slf4j.LoggerFactory
 class EventProcessor(eventQueue: MessageReader,
                      activityQueue: MessageWriter,
                      activityMatcherRegistry: ActivityMatcherRegistry,
-                     estimator: Estimator) {
-  private val exit = new AtomicBoolean(false)
+                     estimator: Estimator) extends StartStopBehaviour {
   private def poll() = {
-    while(!exit.get()) {
+    while(!isStopped) {
       val messages = eventQueue.get
       val activities = estimator.filter(activityMatcherRegistry.spawnEvents(messages))
       activities.foreach {
@@ -43,19 +41,19 @@ class EventProcessor(eventQueue: MessageReader,
   }
 
   var thread: Thread = _
-  def start() = {
+  override def start() = {
     EventProcessor.logger.info("Event processor is going to start.")
+    super.start()
     if(thread != null)
       throw new IllegalStateException("EventProcessor is already started.")
     thread = new Thread(() => { poll() })
-    exit.set(false)
     thread.start()
     EventProcessor.logger.info("Event processor is started.")
   }
 
-  def stop() = {
+  override def stop() = {
     EventProcessor.logger.info("Event processor is going to stop.")
-    exit.set(true)
+    super.stop()
     thread.join()
     thread = null
     EventProcessor.logger.info("Event processor is stopped.")
