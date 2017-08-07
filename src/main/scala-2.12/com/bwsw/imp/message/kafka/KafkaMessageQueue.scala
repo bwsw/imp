@@ -30,12 +30,12 @@ class KafkaMessageQueue(topic: String,
 
   def saveOffsets() = new OffsetKeeper(topic).store(offsets)
 
-  override def loadOffsets(): Unit = {  //todo: test it
+  override def loadOffsets(): Unit = {
     val keeper = new OffsetKeeper(topic)
     val partitions = consumer.partitionsFor(topic).iterator().asScala.map(_.partition()).toSet
     val offsets = keeper.load(partitions)
     offsets.foreach {
-      case (partition, offset) => consumer.seek(new TopicPartition(topic, partition), offset)
+      case (partition, offset) => consumer.seek(new TopicPartition(topic, partition), offset + 1)
     }
   }
 

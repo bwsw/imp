@@ -122,4 +122,8 @@ class KafkaMessageQueueTests extends CuratorTests {
     val mq = new KafkaMessageQueue(TOPIC, consumer, producer)
     mq.putDelayed(message)
   }
+
+  it should "read next message after was bootstrapped with loadOffset" in {
+    //todo fixit.
+  }
 }
