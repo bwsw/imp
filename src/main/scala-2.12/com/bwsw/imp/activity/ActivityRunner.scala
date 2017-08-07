@@ -1,5 +1,6 @@
 package com.bwsw.imp.activity
 
+import com.bwsw.imp.common.StartStopBehaviour
 import com.bwsw.imp.message.MessageQueue
 
 /**
@@ -7,6 +8,14 @@ import com.bwsw.imp.message.MessageQueue
   */
 class ActivityRunner(regularActivityQueue: MessageQueue,
                      delayedActivityQueue: DelayedActivity,
-                     environment: Environment) {
+                     environment: Environment) extends StartStopBehaviour {
+
+  override def start() = {
+    super.start()
+  }
+
+  override def stop() = {
+    super.stop()
+  }
 
 }
