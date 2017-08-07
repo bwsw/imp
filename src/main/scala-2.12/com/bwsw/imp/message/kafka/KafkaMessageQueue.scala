@@ -1,7 +1,7 @@
 package com.bwsw.imp.message.kafka
 
 import com.bwsw.imp.common.kafka.AbstractKafkaProducerProxy
-import com.bwsw.imp.message.{DelayedMessage, Message, MessageQueue}
+import com.bwsw.imp.message.{DelayedMessage, DelayedMessagesCpuProtection, Message, MessageQueue}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.kafka.clients.consumer.{Consumer, ConsumerRecord}
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -16,17 +16,17 @@ import scala.collection.mutable
   */
 
 object KafkaMessageQueue {
-  private[imp] val POLLING_INTERVAL = 100000
-  private[imp] val CPU_PROTECTION_DELAY_INCREMENT = 50
-  private[imp] val CPU_PROTECTION_DELAY_MAX = 1000
+  private val POLLING_INTERVAL = 100000
 }
 
 class KafkaMessageQueue(topic: String,
                         consumer: Consumer[Long, KafkaMessage],
-                        producer: AbstractKafkaProducerProxy)(implicit curatorClient: CuratorFramework) extends MessageQueue {
+                        producer: AbstractKafkaProducerProxy)(implicit curatorClient: CuratorFramework)
+  extends MessageQueue with DelayedMessagesCpuProtection {
 
   protected var offsets = Map[Int, Long]().empty
-  private[imp] var cpuProtectionDelay = 0
+
+  private val pollingInterval = KafkaMessageQueue.POLLING_INTERVAL
 
   def saveOffsets = new OffsetKeeper(topic).store(offsets)
 
@@ -40,10 +40,10 @@ class KafkaMessageQueue(topic: String,
   }
 
   override def get: Seq[KafkaMessage] = {
-    if(cpuProtectionDelay > 0) Thread.sleep(cpuProtectionDelay)
+    delay()
 
     val records = consumer
-      .poll(KafkaMessageQueue.POLLING_INTERVAL)
+      .poll(pollingInterval)
       .records(topic).asScala
 
     val messages = filterReadyMessages(records)
@@ -70,11 +70,9 @@ class KafkaMessageQueue(topic: String,
 
   private def setCpuProtectionDelay(receivedMessagesIsEmpty: Boolean, filteredMessagesIsEmpty: Boolean) = {
     if(!receivedMessagesIsEmpty && filteredMessagesIsEmpty) {
-      if(cpuProtectionDelay < KafkaMessageQueue.CPU_PROTECTION_DELAY_MAX) {
-        cpuProtectionDelay += KafkaMessageQueue.CPU_PROTECTION_DELAY_INCREMENT
-      }
+      incrementCpuProtectionDelay()
     } else {
-      cpuProtectionDelay = 0
+      resetCpuProtectionDelay()
     }
   }
 

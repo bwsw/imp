@@ -96,11 +96,11 @@ class KafkaMessageQueueTests extends CuratorTests {
     consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET, nowTime + 1, message))
     mq.get shouldBe Nil
 
-    mq.cpuProtectionDelay shouldBe KafkaMessageQueue.CPU_PROTECTION_DELAY_INCREMENT
+    mq.cpuProtectionDelay shouldBe mq.cpuProtectionDelayIncrement
 
     consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET + 1, nowTime + 1, message))
     mq.get shouldBe Nil
-    mq.cpuProtectionDelay shouldBe KafkaMessageQueue.CPU_PROTECTION_DELAY_INCREMENT * 2
+    mq.cpuProtectionDelay shouldBe mq.cpuProtectionDelayIncrement * 2
 
     consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET + 2, nowTime + 1, message))
     consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET + 3, nowTime + 1, message))
