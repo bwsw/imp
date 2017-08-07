@@ -3,15 +3,15 @@ package com.bwsw.imp.event
 import java.util.concurrent.atomic.AtomicBoolean
 
 import com.bwsw.imp.activity.{Activity, ActivityMatcherRegistry, DelayedActivity}
-import com.bwsw.imp.message.MessageQueue
+import com.bwsw.imp.message.{MessageReader, MessageWritter}
 
 /**
   * Created by Ivan Kudryavtsev on 05.08.17.
   */
-class EventProcessor(eventQueue: MessageQueue,
-                     activityQueue: MessageQueue,
+class EventProcessor(eventQueue: MessageReader,
+                     activityQueue: MessageWritter,
                      activityMatcherRegistry: ActivityMatcherRegistry,
-                     estimator: Estimator = new PassThroughEstimator) {
+                     estimator: Estimator) {
   private val exit = new AtomicBoolean(false)
   private def poll() = {
     while(!exit.get()) {
