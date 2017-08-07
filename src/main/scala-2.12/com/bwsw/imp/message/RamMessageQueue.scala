@@ -5,21 +5,27 @@ import scala.collection.mutable
 /**
   * Created by Ivan Kudryavtsev on 06.08.17.
   */
-class RamMessageQueue extends MessageQueue {
+class RamMessageQueue extends MessageQueue with DelayedMessagesCpuProtection {
   val queue = mutable.Queue[(Long, Message)]()
 
   override def saveOffsets: Unit = {}
 
   override def get: Seq[Message] = {
-    if(queue.isEmpty)
+    delay()
+    if(queue.isEmpty) {
+      incrementCpuProtectionDelay()
       Nil
+    }
     else {
       val elt = queue.dequeue()
       if(getReadyTime < elt._1) {
         queue.enqueue(elt)
+        incrementCpuProtectionDelay()
         Nil
-      } else
+      } else {
+        resetCpuProtectionDelay()
         List(elt._2)
+      }
     }
   }
 
