@@ -2,6 +2,7 @@ package com.bwsw.imp.message.kafka
 
 import com.bwsw.imp.common.kafka.MockProducerProxy
 import com.bwsw.imp.curator.CuratorTests
+import com.bwsw.imp.message.{DelayedMessage, Message}
 import org.apache.kafka.clients.consumer.{ConsumerRecord, MockConsumer, OffsetResetStrategy}
 import org.apache.kafka.common.TopicPartition
 
@@ -16,9 +17,9 @@ class KafkaMessageQueueTests extends CuratorTests {
   val OFFSET = 1000L
   it should "Fetch ready messages from consumer" in {
 
-    val consumer = new MockConsumer[Long, KafkaMessage](OffsetResetStrategy.EARLIEST)
+    val consumer = new MockConsumer[Long, Message](OffsetResetStrategy.EARLIEST)
     val producer = new MockProducerProxy()
-    val message = new KafkaMessage {}
+    val message = new Message {}
     var checkOffsetsAreSaved: Boolean = false
 
     val mq = new KafkaMessageQueue(TOPIC, consumer, producer) {
@@ -30,7 +31,7 @@ class KafkaMessageQueueTests extends CuratorTests {
 
     consumer.assign(Set(new TopicPartition(TOPIC, 0)).asJavaCollection)
     consumer.seek(new TopicPartition(TOPIC, 0), 0)
-    consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET, 0, message))
+    consumer.addRecord(new ConsumerRecord[Long, Message](TOPIC, PARTITION, OFFSET, 0, message))
 
     checkOffsetsAreSaved = false
     mq.get shouldBe Seq(message)
@@ -42,15 +43,15 @@ class KafkaMessageQueueTests extends CuratorTests {
     mq.get shouldBe Nil
 
     checkOffsetsAreSaved = false
-    consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET+1, 0, message))
-    consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET+2, 0, message))
+    consumer.addRecord(new ConsumerRecord[Long, Message](TOPIC, PARTITION, OFFSET+1, 0, message))
+    consumer.addRecord(new ConsumerRecord[Long, Message](TOPIC, PARTITION, OFFSET+2, 0, message))
     mq.get shouldBe Seq(message, message)
   }
 
   it should "forward future messages to producer" in {
-    val consumer = new MockConsumer[Long, KafkaMessage](OffsetResetStrategy.EARLIEST)
+    val consumer = new MockConsumer[Long, Message](OffsetResetStrategy.EARLIEST)
     val producer = new MockProducerProxy()
-    val message = new KafkaMessage {}
+    val message = new Message {}
     var nowTime = 100
 
     val mq = new KafkaMessageQueue(TOPIC, consumer, producer) {
@@ -61,13 +62,13 @@ class KafkaMessageQueueTests extends CuratorTests {
 
     consumer.assign(Set(new TopicPartition(TOPIC, 0)).asJavaCollection)
     consumer.seek(new TopicPartition(TOPIC, 0), 0)
-    consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET, nowTime + 1, message))
+    consumer.addRecord(new ConsumerRecord[Long, Message](TOPIC, PARTITION, OFFSET, nowTime + 1, message))
     mq.get shouldBe Nil
     val record = producer.msgQueue.dequeue()
     record.key() shouldBe nowTime + 1
     record.value() shouldBe message
 
-    consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET + 1, nowTime + 1, message))
+    consumer.addRecord(new ConsumerRecord[Long, Message](TOPIC, PARTITION, OFFSET + 1, nowTime + 1, message))
     nowTime += 1
     mq.get shouldBe Seq(message)
     producer.msgQueue.isEmpty shouldBe true
@@ -80,9 +81,9 @@ class KafkaMessageQueueTests extends CuratorTests {
   }
 
   it should "increase cpu protection delay on unsuccessful read if 0 objects passed the filter" in {
-    val consumer = new MockConsumer[Long, KafkaMessage](OffsetResetStrategy.EARLIEST)
+    val consumer = new MockConsumer[Long, Message](OffsetResetStrategy.EARLIEST)
     val producer = new MockProducerProxy()
-    val message = new KafkaMessage {}
+    val message = new Message {}
     var nowTime = 100
 
     val mq = new KafkaMessageQueue(TOPIC, consumer, producer) {
@@ -93,17 +94,17 @@ class KafkaMessageQueueTests extends CuratorTests {
 
     consumer.assign(Set(new TopicPartition(TOPIC, 0)).asJavaCollection)
     consumer.seek(new TopicPartition(TOPIC, 0), 0)
-    consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET, nowTime + 1, message))
+    consumer.addRecord(new ConsumerRecord[Long, Message](TOPIC, PARTITION, OFFSET, nowTime + 1, message))
     mq.get shouldBe Nil
 
     mq.cpuProtectionDelay shouldBe mq.cpuProtectionDelayIncrement
 
-    consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET + 1, nowTime + 1, message))
+    consumer.addRecord(new ConsumerRecord[Long, Message](TOPIC, PARTITION, OFFSET + 1, nowTime + 1, message))
     mq.get shouldBe Nil
     mq.cpuProtectionDelay shouldBe mq.cpuProtectionDelayIncrement * 2
 
-    consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET + 2, nowTime + 1, message))
-    consumer.addRecord(new ConsumerRecord[Long, KafkaMessage](TOPIC, PARTITION, OFFSET + 3, nowTime + 1, message))
+    consumer.addRecord(new ConsumerRecord[Long, Message](TOPIC, PARTITION, OFFSET + 2, nowTime + 1, message))
+    consumer.addRecord(new ConsumerRecord[Long, Message](TOPIC, PARTITION, OFFSET + 3, nowTime + 1, message))
 
     nowTime += 1
     mq.get shouldBe Seq(message, message)
@@ -112,9 +113,9 @@ class KafkaMessageQueueTests extends CuratorTests {
   }
 
   it should "allow put DelayedMessage properly" in {
-    val consumer = new MockConsumer[Long, KafkaMessage](OffsetResetStrategy.EARLIEST)
+    val consumer = new MockConsumer[Long, Message](OffsetResetStrategy.EARLIEST)
     val producer = new MockProducerProxy()
-    val message = new KafkaDelayedMessage {
+    val message = new DelayedMessage {
       override def delay: Long = 1000
     }
 

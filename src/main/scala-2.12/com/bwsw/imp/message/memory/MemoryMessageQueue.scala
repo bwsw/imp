@@ -1,11 +1,13 @@
-package com.bwsw.imp.message
+package com.bwsw.imp.message.memory
+
+import com.bwsw.imp.message.{DelayedMessage, DelayedMessagesCpuProtection, Message, MessageQueue}
 
 import scala.collection.mutable
 
 /**
   * Created by Ivan Kudryavtsev on 06.08.17.
   */
-class RamMessageQueue extends MessageQueue with DelayedMessagesCpuProtection {
+class MemoryMessageQueue extends MessageQueue with DelayedMessagesCpuProtection {
   val queue = mutable.Queue[(Long, Message)]()
 
   override def saveOffsets: Unit = {}

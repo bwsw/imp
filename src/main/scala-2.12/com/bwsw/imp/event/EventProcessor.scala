@@ -10,7 +10,8 @@ import com.bwsw.imp.message.MessageQueue
   */
 class EventProcessor(eventQueue: MessageQueue,
                      activityQueue: MessageQueue,
-                     matcherRegistry: ActivityMatcherRegistry, estimator: Estimator = new PassThroughEstimator) {
+                     matcherRegistry: ActivityMatcherRegistry,
+                     estimator: Estimator = new PassThroughEstimator) {
   private val exit = new AtomicBoolean(false)
   private def poll() = {
     while(!exit.get()) {

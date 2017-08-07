@@ -20,7 +20,7 @@ object KafkaMessageQueue {
 }
 
 class KafkaMessageQueue(topic: String,
-                        consumer: Consumer[Long, KafkaMessage],
+                        consumer: Consumer[Long, Message],
                         producer: AbstractKafkaProducerProxy)(implicit curatorClient: CuratorFramework)
   extends MessageQueue with DelayedMessagesCpuProtection {
 
@@ -39,7 +39,7 @@ class KafkaMessageQueue(topic: String,
     }
   }
 
-  override def get: Seq[KafkaMessage] = {
+  override def get: Seq[Message] = {
     delay()
 
     val records = consumer
@@ -53,8 +53,8 @@ class KafkaMessageQueue(topic: String,
     messages
   }
 
-  private def filterReadyMessages(records: Iterable[ConsumerRecord[Long, KafkaMessage]]): Seq[KafkaMessage] = {
-    val messages = mutable.ListBuffer[KafkaMessage]()
+  private def filterReadyMessages(records: Iterable[ConsumerRecord[Long, Message]]): Seq[Message] = {
+    val messages = mutable.ListBuffer[Message]()
     offsets ++= records.map(r => {
       if(r.key <= getReadyTime) {
         messages.append(r.value())
@@ -77,7 +77,7 @@ class KafkaMessageQueue(topic: String,
   }
 
   protected def putInternal(message: Message, delay: Long): Unit = {
-    val m = new ProducerRecord[Long, KafkaMessage](topic, delay, message.asInstanceOf[KafkaMessage])
+    val m = new ProducerRecord[Long, Message](topic, delay, message.asInstanceOf[Message])
     producer.sendMessage(m)
   }
 
@@ -85,7 +85,7 @@ class KafkaMessageQueue(topic: String,
     putInternal(message, 0)
   }
 
-  override def putDelayed(message: DelayedMessage): Unit = putInternal(message.asInstanceOf[KafkaMessage], message.delay)
+  override def putDelayed(message: DelayedMessage): Unit = putInternal(message.asInstanceOf[Message], message.delay)
 
 
 }
