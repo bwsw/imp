@@ -15,8 +15,8 @@ import scala.util.{Failure, Success}
   */
 class ActivityMatcherRegistry(environment: Environment) {
   val registry = mutable.ListBuffer[ActivityMatcher]()
-  def register(eventFactory: ActivityMatcher) = {
-    registry.append(eventFactory)
+  def register(activityMatcher: ActivityMatcher) = {
+    registry.append(activityMatcher)
     this
   }
 

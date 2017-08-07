@@ -10,13 +10,13 @@ import com.bwsw.imp.message.MessageQueue
   */
 class EventProcessor(eventQueue: MessageQueue,
                      activityQueue: MessageQueue,
-                     matcherRegistry: ActivityMatcherRegistry,
+                     activityMatcherRegistry: ActivityMatcherRegistry,
                      estimator: Estimator = new PassThroughEstimator) {
   private val exit = new AtomicBoolean(false)
   private def poll() = {
     while(!exit.get()) {
       val messages = eventQueue.get
-      val activities = estimator.filter(matcherRegistry.spawnEvents(messages))
+      val activities = estimator.filter(activityMatcherRegistry.spawnEvents(messages))
       activities.foreach {
         case a: DelayedActivity => activityQueue.putDelayed(a)
         case a: Activity => activityQueue.put(a)
