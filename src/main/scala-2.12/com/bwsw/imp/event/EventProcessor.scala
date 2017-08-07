@@ -1,6 +1,6 @@
 package com.bwsw.imp.event
 
-import com.bwsw.imp.activity.{Activity, ActivityMatcherRegistry, DelayedActivity}
+import com.bwsw.imp.activity.{Activity, ActivityEstimator, ActivityMatcherRegistry, DelayedActivity}
 import com.bwsw.imp.common.StartStopBehaviour
 import com.bwsw.imp.message.{MessageReader, MessageWriter}
 import org.slf4j.LoggerFactory
@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
 class EventProcessor(eventQueue: MessageReader,
                      activityQueue: MessageWriter,
                      activityMatcherRegistry: ActivityMatcherRegistry,
-                     estimator: Estimator) extends StartStopBehaviour {
+                     estimator: ActivityEstimator) extends StartStopBehaviour {
   private def poll() = {
     while(!isStopped) {
       val messages = eventQueue.get
