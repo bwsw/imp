@@ -37,7 +37,34 @@ class EventProcessorTests extends FlatSpec with Matchers {
     val eventProcessor = new EventProcessor(eventQueue = eventQueue, activityQueue = activityQueue,
       activityMatcherRegistry = registry, estimator = new PassThroughActivityEstimator)
     eventProcessor.start()
-    latch.await(1, TimeUnit.SECONDS)
+    latch.await(1, TimeUnit.SECONDS) shouldBe true
+    eventProcessor.stop()
+    activityQueue.get shouldBe Seq(activity)
+  }
+
+  it should "get events from eventQueue and put actions to ActionQueue when first factory crashes" in {
+    val latch = new CountDownLatch(1)
+    val registry = new ActivityMatcherRegistry(new Environment)
+    val activity = new Activity {
+      override def activate(e: Environment): Seq[Activity] = Nil
+    }
+
+    registry.register((environment: Environment, event: Event) => {
+      throw new IllegalArgumentException("fail")
+    })
+
+    registry.register((environment: Environment, event: Event) => {
+      latch.countDown()
+      List(activity)
+    })
+
+    val eventQueue = new MemoryMessageQueue
+    eventQueue.put(new Event)
+    val activityQueue = new MemoryMessageQueue
+    val eventProcessor = new EventProcessor(eventQueue = eventQueue, activityQueue = activityQueue,
+      activityMatcherRegistry = registry, estimator = new PassThroughActivityEstimator)
+    eventProcessor.start()
+    latch.await(1, TimeUnit.SECONDS) shouldBe true
     eventProcessor.stop()
     activityQueue.get shouldBe Seq(activity)
   }

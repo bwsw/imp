@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory
 import scala.collection.mutable
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 /**
   * Created by Ivan Kudryavtsev on 01.08.17.
@@ -26,7 +26,13 @@ class ActivityMatcherRegistry(environment: Environment) {
     ActivityMatcherRegistry.logger.debug(s"Generate activities for $event.")
     registry match {
       case Nil => Nil
-      case h :: t => h.spawn(environment, event) ++ spawnInt(t, event)
+      case matcher :: t =>
+        val v = Try(matcher.spawn(environment, event)) match {
+        case Success(res) => res
+        case Failure(ex) => ActivityMatcherRegistry.logger.error("An exception occurred during Action generation for event.", ex)
+          Nil
+        }
+        v ++ spawnInt(t, event)
     }
   }
 

@@ -125,4 +125,27 @@ class ActivityRunnerTests extends FlatSpec with Matchers {
     runner.stop()
   }
 
+  it should "run two regular activities when first fails, second completes" in {
+    val regularActivityQueue = new MemoryMessageQueue
+    val latch = new CountDownLatch(1)
+    val runner = new ActivityRunner(regularActivityQueue = regularActivityQueue,
+      delayedActivityQueue = new MemoryMessageQueue, environment = new Environment)
+    runner.start()
+    regularActivityQueue.put(new Activity {
+      override def activate(e: Environment): Seq[Activity] = {
+        throw new IllegalArgumentException("fail")
+      }
+    })
+
+    regularActivityQueue.put(new Activity {
+      override def activate(e: Environment): Seq[Activity] = {
+        latch.countDown()
+        Nil
+      }
+    })
+
+    latch.await(10, TimeUnit.SECONDS) shouldBe true
+    runner.stop()
+  }
+
 }
