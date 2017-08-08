@@ -15,9 +15,7 @@ import scala.collection.mutable
   * Created by Ivan Kudryavtsev on 01.08.17.
   */
 
-object KafkaMessageQueue {
-  private val POLLING_INTERVAL = 100000
-}
+
 
 class KafkaMessageQueue(topic: String,
                         consumer: Consumer[Long, Message],
@@ -27,7 +25,7 @@ class KafkaMessageQueue(topic: String,
 
   protected var offsets = Map[Int, Long]().empty
 
-  private val pollingInterval = KafkaMessageQueue.POLLING_INTERVAL
+  private val pollingInterval = MessageQueue.POLLING_INTERVAL
 
   def saveOffsets() = offsetKeeper.store(topic, offsets)
 

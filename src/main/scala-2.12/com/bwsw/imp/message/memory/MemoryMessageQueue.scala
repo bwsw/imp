@@ -1,6 +1,6 @@
 package com.bwsw.imp.message.memory
 
-import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.{LinkedBlockingQueue, TimeUnit}
 
 import com.bwsw.imp.message.{DelayedMessage, DelayedMessagesCpuProtection, Message, MessageQueue}
 
@@ -16,14 +16,18 @@ class MemoryMessageQueue extends MessageQueue with DelayedMessagesCpuProtection 
 
   override def get: Seq[Message] = {
     delay()
-    val elt = queue.poll()
-    if(getReadyTime < elt._1) {
-      queue.put(elt)
-      incrementCpuProtectionDelay()
+    val elt = queue.poll(MessageQueue.POLLING_INTERVAL, TimeUnit.MICROSECONDS)
+    if(elt == null)
       Nil
-    } else {
-      resetCpuProtectionDelay()
-      List(elt._2)
+    else {
+      if (getReadyTime < elt._1) {
+        queue.put(elt)
+        incrementCpuProtectionDelay()
+        Nil
+      } else {
+        resetCpuProtectionDelay()
+        List(elt._2)
+      }
     }
   }
 
