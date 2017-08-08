@@ -1,6 +1,7 @@
 package com.bwsw.imp.message.kafka
 
 import com.bwsw.imp.common.kafka.MockProducerProxy
+import com.bwsw.imp.common.zookeeper.ZookeeperOffsetKeeper
 import com.bwsw.imp.curator.CuratorTests
 import com.bwsw.imp.message.{DelayedMessage, Message, MessageFilter}
 import org.apache.kafka.clients.consumer.{ConsumerRecord, MockConsumer, OffsetResetStrategy}
@@ -42,7 +43,7 @@ class FilteredKafkaMessageQueueTests extends CuratorTests {
     val producer = new MockProducerProxy()
     val message = new Message {}
 
-    val mq = new FilteredKafkaMessageQueue(TOPIC, consumer, producer, filter)
+    val mq = new FilteredKafkaMessageQueue(TOPIC, consumer, producer, filter, new ZookeeperOffsetKeeper)
 
     consumer.assign(Set(new TopicPartition(TOPIC, 0)).asJavaCollection)
     consumer.seek(new TopicPartition(TOPIC, 0), 0)

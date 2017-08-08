@@ -1,7 +1,7 @@
 package com.bwsw.imp.message.kafka
 
 import com.bwsw.imp.common.kafka.AbstractKafkaProducerProxy
-import com.bwsw.imp.message.{DelayedMessage, DelayedMessagesCpuProtection, Message, MessageQueue}
+import com.bwsw.imp.message._
 import org.apache.curator.framework.CuratorFramework
 import org.apache.kafka.clients.consumer.{Consumer, ConsumerRecord}
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -21,19 +21,19 @@ object KafkaMessageQueue {
 
 class KafkaMessageQueue(topic: String,
                         consumer: Consumer[Long, Message],
-                        producer: AbstractKafkaProducerProxy)(implicit curatorClient: CuratorFramework)
+                        producer: AbstractKafkaProducerProxy,
+                        offsetKeeper: OffsetKeeper)(implicit curatorClient: CuratorFramework)
   extends MessageQueue with DelayedMessagesCpuProtection {
 
   protected var offsets = Map[Int, Long]().empty
 
   private val pollingInterval = KafkaMessageQueue.POLLING_INTERVAL
 
-  def saveOffsets() = new OffsetKeeper(topic).store(offsets)
+  def saveOffsets() = offsetKeeper.store(topic, offsets)
 
   override def loadOffsets(): Unit = {
-    val keeper = new OffsetKeeper(topic)
     val partitions = consumer.partitionsFor(topic).iterator().asScala.map(_.partition()).toSet
-    val offsets = keeper.load(partitions)
+    val offsets = offsetKeeper.load(topic, partitions)
     offsets.foreach {
       case (partition, offset) => consumer.seek(new TopicPartition(topic, partition), offset + 1)
     }

@@ -1,6 +1,7 @@
 package com.bwsw.imp.message.kafka
 
 import com.bwsw.imp.common.kafka.MockProducerProxy
+import com.bwsw.imp.common.zookeeper.ZookeeperOffsetKeeper
 import com.bwsw.imp.curator.CuratorTests
 import com.bwsw.imp.message.{DelayedMessage, Message}
 import org.apache.kafka.clients.consumer.{ConsumerRecord, MockConsumer, OffsetResetStrategy}
@@ -22,7 +23,7 @@ class KafkaMessageQueueTests extends CuratorTests {
     val message = new Message {}
     var checkOffsetsAreSaved: Boolean = false
 
-    val mq = new KafkaMessageQueue(TOPIC, consumer, producer) {
+    val mq = new KafkaMessageQueue(TOPIC, consumer, producer, new ZookeeperOffsetKeeper) {
       override def saveOffsets = {
         if(checkOffsetsAreSaved)
           offsets(PARTITION) shouldBe OFFSET
@@ -54,7 +55,7 @@ class KafkaMessageQueueTests extends CuratorTests {
     val message = new Message {}
     var nowTime = 100
 
-    val mq = new KafkaMessageQueue(TOPIC, consumer, producer) {
+    val mq = new KafkaMessageQueue(TOPIC, consumer, producer, new ZookeeperOffsetKeeper) {
       override def getReadyTime = {
         nowTime
       }
@@ -76,8 +77,8 @@ class KafkaMessageQueueTests extends CuratorTests {
     producer.msgQueue.isEmpty shouldBe true
 
     mq.saveOffsets
-    val offsetKeeper = new OffsetKeeper(TOPIC)
-    offsetKeeper.load(Set(PARTITION)) shouldBe Map (PARTITION -> (OFFSET + 1))
+    val offsetKeeper = new ZookeeperOffsetKeeper
+    offsetKeeper.load(TOPIC, Set(PARTITION)) shouldBe Map (PARTITION -> (OFFSET + 1))
   }
 
   it should "increase cpu protection delay on unsuccessful read if 0 objects passed the filter" in {
@@ -86,7 +87,7 @@ class KafkaMessageQueueTests extends CuratorTests {
     val message = new Message {}
     var nowTime = 100
 
-    val mq = new KafkaMessageQueue(TOPIC, consumer, producer) {
+    val mq = new KafkaMessageQueue(TOPIC, consumer, producer, new ZookeeperOffsetKeeper) {
       override def getReadyTime = {
         nowTime
       }
@@ -119,7 +120,7 @@ class KafkaMessageQueueTests extends CuratorTests {
       override def delay: Long = 1000
     }
 
-    val mq = new KafkaMessageQueue(TOPIC, consumer, producer)
+    val mq = new KafkaMessageQueue(TOPIC, consumer, producer, new ZookeeperOffsetKeeper)
     mq.putDelayed(message)
   }
 
