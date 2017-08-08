@@ -6,4 +6,4 @@ Scalable Event/Action Processing Framework
 
 # Technical
 
-* [Travis Build History](https://travis-ci.org/bwsw/imp/builds)
+[Travis Build History](https://travis-ci.org/bwsw/imp/builds)
