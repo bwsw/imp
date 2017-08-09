@@ -36,4 +36,14 @@ class DelayedMessageCpuProtectionTests extends FlatSpec with Matchers {
     afterTime - beforeTime >= inc shouldBe true
   }
 
+  it should "allow to set parameters" in {
+    val delayer = new DelayedMessagesCpuProtection {}
+    delayer.setCpuProtectionParameters(1, 10)
+    delayer.incrementCpuProtectionDelay()
+    delayer.cpuProtectionDelay shouldBe 1
+    delayer.cpuProtectionDelayIncrement shouldBe 1
+    delayer.cpuProtectionDelayMax shouldBe 10
+
+  }
+
 }
