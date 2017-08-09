@@ -20,6 +20,7 @@ abstract class AbstractRunner {
   def getEventQueue() = eventQueue
   protected def getRegularActivityQueue() = regularActivityQueue
   protected def getDelayedActivityQueue() = delayedActivityQueue
+  protected def getActivityMatcherRegistry() = matcherRegistry
 
   //builders
   protected def buildEventQueue(): MessageQueue

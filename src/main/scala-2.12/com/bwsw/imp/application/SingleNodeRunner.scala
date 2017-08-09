@@ -36,7 +36,7 @@ class SingleNodeRunner extends AbstractRunner with StartStopBehaviour {
   override protected def buildEstimator(): ActivityEstimator = new PassThroughActivityEstimator
 
   override protected def buildEventProcessor(): EventProcessor = {
-    new EventProcessor(getEventQueue(), getRegularActivityQueue(), buildActivityMatcherRegistry(getEnvironment()), buildEstimator())
+    new EventProcessor(getEventQueue(), getRegularActivityQueue(), getActivityMatcherRegistry(), buildEstimator())
   }
 
   override protected def buildActivityRunner(): ActivityRunner = {
