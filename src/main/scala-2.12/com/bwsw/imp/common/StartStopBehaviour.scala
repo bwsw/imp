@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
   * Created by Ivan Kudryavtsev on 07.08.17.
   */
-abstract class StartStopBehaviour {
+trait StartStopBehaviour {
   private val isStoppedFlag = new AtomicBoolean(true)
   def start() = {
     if(!isStoppedFlag.getAndSet(false))
