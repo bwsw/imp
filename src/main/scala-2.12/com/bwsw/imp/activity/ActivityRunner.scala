@@ -4,6 +4,7 @@ import java.util.concurrent.CountDownLatch
 
 import com.bwsw.imp.common.{Lift, StartStopBehaviour}
 import com.bwsw.imp.message.{MessageQueue, MessageReader}
+import org.slf4j.LoggerFactory
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -16,6 +17,8 @@ import scala.util.{Failure, Success}
 class ActivityRunner(regularActivityQueue: MessageQueue,
                      delayedActivityQueue: MessageQueue,
                      environment: Environment) extends StartStopBehaviour {
+
+  val logger = ActivityRunner.logger
 
   private def pollRegularActivities() = {
     awaitStart.countDown()
@@ -57,16 +60,23 @@ class ActivityRunner(regularActivityQueue: MessageQueue,
 
   override def start() = {
     super.start()
+    logger.info("Activity runner is going to start.")
     awaitStart = new CountDownLatch(2)
     regularPoller = new Thread(() => { pollRegularActivities() })
     delayedPoller = new Thread(() => { pollDelayedActivities() })
     Seq(regularPoller, delayedPoller).map(_.start())
     awaitStart.await()
+    logger.info("Activity runner is started.")
   }
 
   override def stop() = {
     super.stop()
+    logger.info("Activity runner is going to stop.")
     Seq(regularPoller, delayedPoller).map(_.join())
+    logger.info("Activity runner is stopped.")
   }
+}
 
+object ActivityRunner {
+  protected val logger = LoggerFactory.getLogger(this.getClass)
 }

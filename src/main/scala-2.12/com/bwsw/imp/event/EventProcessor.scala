@@ -61,5 +61,5 @@ class EventProcessor(eventQueue: MessageReader,
 }
 
 object EventProcessor {
-  val logger = LoggerFactory.getLogger(this.getClass)
+  protected val logger = LoggerFactory.getLogger(this.getClass)
 }
