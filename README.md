@@ -2,7 +2,7 @@
 
 # Bitworks Imp
 
-Scalable Event/Action Processing Framework
+Scalable Event/Action Processing Framework. It's designed to build scalable IM bots and other Event -> Seq(Action) applications easily. 
 
 # Technical
 
