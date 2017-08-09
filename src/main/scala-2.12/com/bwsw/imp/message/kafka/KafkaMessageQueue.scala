@@ -2,6 +2,7 @@ package com.bwsw.imp.message.kafka
 
 import com.bwsw.imp.common.kafka.AbstractKafkaProducerProxy
 import com.bwsw.imp.message._
+import com.bwsw.imp.message.kafka.offsets.OffsetKeeper
 import org.apache.curator.framework.CuratorFramework
 import org.apache.kafka.clients.consumer.{Consumer, ConsumerRecord}
 import org.apache.kafka.clients.producer.ProducerRecord

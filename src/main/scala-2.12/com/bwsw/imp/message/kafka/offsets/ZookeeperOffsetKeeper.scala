@@ -1,8 +1,7 @@
-package com.bwsw.imp.common.zookeeper
+package com.bwsw.imp.message.kafka.offsets
 
 import java.nio.ByteBuffer
 
-import com.bwsw.imp.message.OffsetKeeper
 import org.apache.curator.framework.CuratorFramework
 
 /**

@@ -1,7 +1,8 @@
 package com.bwsw.imp.message.kafka
 
 import com.bwsw.imp.common.kafka.AbstractKafkaProducerProxy
-import com.bwsw.imp.message.{FilteredMessageQueue, Message, MessageFilter, OffsetKeeper}
+import com.bwsw.imp.message.kafka.offsets.OffsetKeeper
+import com.bwsw.imp.message.{FilteredMessageQueue, Message, MessageFilter}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.kafka.clients.consumer.Consumer
 

@@ -1,4 +1,4 @@
-package com.bwsw.imp.message
+package com.bwsw.imp.message.kafka.offsets
 
 /**
   * Created by Ivan Kudryavtsev on 08.08.17.
