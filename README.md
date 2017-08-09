@@ -1,4 +1,4 @@
-![](https://travis-ci.org/bwsw/imp.svg?branch=master)
+![](https://travis-ci.org/bwsw/imp.svg?branch=master) [![Coverage Status](https://coveralls.io/repos/github/bwsw/imp/badge.svg?branch=master)](https://coveralls.io/github/bwsw/imp?branch=master)Ф
 
 # Bitworks Imp
 
