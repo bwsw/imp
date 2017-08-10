@@ -7,6 +7,7 @@ import org.apache.curator.framework.CuratorFramework
 import org.apache.kafka.clients.consumer.{Consumer, ConsumerRecord}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.TopicPartition
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -24,17 +25,21 @@ class KafkaMessageQueue(topic: String,
                         offsetKeeper: OffsetKeeper)(implicit curatorClient: CuratorFramework)
   extends MessageQueue with DelayedMessagesCpuProtection {
 
-  protected var offsets = Map[Int, Long]().empty
-
+  private val logger = KafkaMessageQueue.logger
   private val pollingInterval = MessageQueue.POLLING_INTERVAL
+
+  protected var offsets = Map[Int, Long]().empty
 
   def saveOffsets() = offsetKeeper.store(topic, offsets)
 
   override def loadOffsets(): Unit = {
-    val partitions = consumer.partitionsFor(topic).iterator().asScala.map(_.partition()).toSet
+    val partitions = consumer.assignment().iterator().asScala
+      .filter(_.topic() == topic).map(_.partition()).toSet
     val offsets = offsetKeeper.load(topic, partitions)
     offsets.foreach {
-      case (partition, offset) => consumer.seek(new TopicPartition(topic, partition), offset + 1)
+      case (partition, offset) =>
+        consumer.seek(new TopicPartition(topic, partition), offset + 1)
+        logger.info(s"Deployed offset for $topic[$partition] as $offset.")
     }
   }
 
@@ -87,6 +92,10 @@ class KafkaMessageQueue(topic: String,
   override def putDelayed(message: DelayedMessage): Unit = putInternal(message.asInstanceOf[Message], message.delay)
 
 
+}
+
+object KafkaMessageQueue {
+  protected val logger = LoggerFactory.getLogger(this.getClass)
 }
 
 

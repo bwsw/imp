@@ -125,6 +125,16 @@ class KafkaMessageQueueTests extends CuratorTests {
   }
 
   it should "read next message after was bootstrapped with loadOffset" in {
-    //todo fixit.
+
+    val consumer = new MockConsumer[Long, Message](OffsetResetStrategy.EARLIEST)
+    val producer = new MockProducerProxy()
+
+    val mq = new KafkaMessageQueue(TOPIC, consumer, producer, new ZookeeperOffsetKeeper) {
+      override def saveOffsets = {
+
+      }
+    }
+    consumer.assign(Set(new TopicPartition(TOPIC, 0)).asJavaCollection)
+    mq.loadOffsets()
   }
 }
