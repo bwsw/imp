@@ -99,4 +99,5 @@ class EventProcessorTests extends FlatSpec with Matchers {
     Thread.sleep(sleep + 1)
     activityQueue.get shouldBe Seq(activity)
   }
+
 }
