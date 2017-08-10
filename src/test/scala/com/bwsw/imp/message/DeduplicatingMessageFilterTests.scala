@@ -11,7 +11,7 @@ class DeduplicatingMessageFilterTests extends FlatSpec with Matchers {
     val cache = scala.collection.mutable.Map[String, Boolean]().empty
 
     override def checkExists(m: Message): Boolean = {
-      if(cache.contains(m.hash))
+      if (cache.contains(m.hash))
         true
       else {
         cache(m.hash) = true
@@ -28,5 +28,12 @@ class DeduplicatingMessageFilterTests extends FlatSpec with Matchers {
 
     val message2 = new Message {}
     mf.filterPut(message2) shouldBe true
+
   }
+
+  it should "not filter incoming messages" in {
+    val mf = new DeduplicatingMessageFilter(new UniqueCache)
+    mf.filterGet(new Message {}) shouldBe true
+  }
+
 }
