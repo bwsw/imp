@@ -49,7 +49,6 @@ class ActivityRunner(regularActivityQueue: MessageQueue,
     Await.result(activityFutures, Duration.Inf) foreach {
       case a: DelayedActivity => delayedActivityQueue.putDelayed(a)
       case a: Activity => regularActivityQueue.put(a)
-      case a => throw new IllegalArgumentException(s"We expect only activity or delayed activity object, but received `$a'.")
     }
     queue.saveOffsets()
   }
