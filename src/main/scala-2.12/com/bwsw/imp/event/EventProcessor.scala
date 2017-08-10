@@ -40,8 +40,6 @@ class EventProcessor(eventQueue: MessageReader,
   override def start() = {
     logger.info("Event processor is going to start.")
     super.start()
-    if(thread != null)
-      throw new IllegalStateException("EventProcessor is already started.")
     thread = new Thread(() => { poll() })
     thread.start()
     logger.info("Event processor is started.")

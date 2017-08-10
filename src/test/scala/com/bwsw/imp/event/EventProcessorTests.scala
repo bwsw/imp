@@ -100,4 +100,16 @@ class EventProcessorTests extends FlatSpec with Matchers {
     activityQueue.get shouldBe Seq(activity)
   }
 
+  it should "avoid double start" in {
+    val registry = new ActivityMatcherRegistry(new Environment)
+    val eventQueue = new MemoryMessageQueue
+    val activityQueue = new MemoryMessageQueue
+    val eventProcessor = new EventProcessor(eventQueue = eventQueue, activityQueue = activityQueue,
+      activityMatcherRegistry = registry, estimator = new PassThroughActivityEstimator)
+    eventProcessor.start()
+    intercept[IllegalStateException] {
+      eventProcessor.start()
+    }
+  }
+
 }
