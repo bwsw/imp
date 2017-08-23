@@ -7,17 +7,17 @@ class FilteredMessageQueue(backendQueue: MessageQueue, filter: MessageFilter) ex
 
   override def get: Seq[Message] = {
     val messages = backendQueue.get
-    val result = messages.flatMap(message => if(filter.filterPut(message)) Seq(message) else Seq.empty)
+    val result = messages.flatMap(message => if(filter.filterGet(message)) Seq(message) else Seq.empty)
     result
   }
 
   override def put(message: Message): Unit = {
-    if(filter.filterGet(message))
+    if(filter.filterPut(message))
       backendQueue.put(message)
   }
 
   override def putDelayed(message: DelayedMessage): Unit = {
-    if(filter.filterGet(message))
+    if(filter.filterPut(message))
       backendQueue.putDelayed(message)
   }
 
