@@ -24,12 +24,12 @@ class FilteredKafkaMessageQueueTests extends CuratorTests {
     var egressThrottledCount = 0
     var egressFilterResult = true
 
-    override def filterGet(message: Message): Boolean = {
+    override def filterPut(message: Message): Boolean = {
       ingressThrottledCount += 1
       ingressFilterResult
     }
 
-    override def filterPut(message: Message): Boolean = {
+    override def filterGet(message: Message): Boolean = {
       egressThrottledCount += 1
       egressFilterResult
     }
