@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean
   */
 trait StartStopBehaviour {
   private val isStoppedFlag = new AtomicBoolean(true)
+  //todo: public methods should have type annotation
   def start() = {
     if(!isStoppedFlag.getAndSet(false))
       throw new IllegalStateException(s"Object $this is already started. Next start is available only after stop call.")

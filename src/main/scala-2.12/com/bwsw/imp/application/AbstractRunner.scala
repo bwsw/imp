@@ -8,6 +8,8 @@ import com.bwsw.imp.message.{MessageQueue, MessageWriter}
   * Created by Ivan Kudryavtsev on 09.08.17.
   */
 abstract class AbstractRunner {
+  //todo: protected and public methods required type annotation
+
   protected val eventQueue = buildEventQueue()
 
   private val regularActivityQueue = buildRegularActivityQueue()
