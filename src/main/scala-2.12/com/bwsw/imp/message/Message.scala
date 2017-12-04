@@ -9,8 +9,10 @@ abstract class Message extends Serializable {
 
   val uuid = java.util.UUID.randomUUID()
 
+  //todo: Possible using immutable Map
   val propertyMap = mutable.Map[String, String]()
 
+  //todo: Can be simpler => propertyMap.get(key) -- Option[String]
   def getProperty(key: String): Option[String] = {
     if (propertyMap.contains(key))
       Some(propertyMap(key))
@@ -18,6 +20,7 @@ abstract class Message extends Serializable {
       None
   }
 
+  //todo: what if element is not found?
   def setProperty(key: String, value: String) = {
     propertyMap(key) = value
   }

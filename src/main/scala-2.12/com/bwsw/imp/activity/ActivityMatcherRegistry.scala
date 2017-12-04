@@ -14,6 +14,7 @@ import scala.util.{Failure, Success, Try}
   * Created by Ivan Kudryavtsev on 01.08.17.
   */
 class ActivityMatcherRegistry(environment: Environment) {
+  //todo: Probably, it should be immutable List
   val registry = mutable.ListBuffer[ActivityMatcher]()
   def register(activityMatcher: ActivityMatcher) = {
     registry.append(activityMatcher)
@@ -23,6 +24,7 @@ class ActivityMatcherRegistry(environment: Environment) {
   def spawn(event: Event): Seq[Activity] = spawnInt(registry.toList, event)
 
   private def spawnInt(registry: Seq[ActivityMatcher], event: Event): Seq[Activity] = {
+    //todo: Need to create val logger
     ActivityMatcherRegistry.logger.debug(s"Generate activities for $event.")
     registry match {
       case Nil => Nil
@@ -36,6 +38,7 @@ class ActivityMatcherRegistry(environment: Environment) {
     }
   }
 
+  //todo: Why method returns no Future? Await and global ExecutionContext not good decision, usually
   def spawnEvents(events: Seq[Message]): Seq[Activity] = {
     import ExecutionContext.Implicits.global
 
@@ -52,5 +55,6 @@ class ActivityMatcherRegistry(environment: Environment) {
 }
 
 object ActivityMatcherRegistry {
+  //oh, I see it. I think, logger should be in class
   val logger = LoggerFactory.getLogger(this.getClass)
 }

@@ -36,6 +36,7 @@ class EventProcessor(eventQueue: MessageReader,
     }
   }
 
+  //todo: Why do you not use Future?
   var thread: Thread = _
   override def start() = {
     logger.info("Event processor is going to start.")
@@ -55,5 +56,6 @@ class EventProcessor(eventQueue: MessageReader,
 }
 
 object EventProcessor {
+  //todo: move logger to class
   protected val logger = LoggerFactory.getLogger(this.getClass)
 }
